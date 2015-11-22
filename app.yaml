@@ -1,4 +1,4 @@
-application: your-app-id
+application: bardemir-web
 version: 1
 runtime: python27
 threadsafe: true
@@ -11,22 +11,28 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
+- url: (/facebook.*)
+  script: facebook.login.APPLICATION 
+
+- url: (/properties.*)
+  script: properties.properties.APPLICATION 
+
 - url: (.*)/
-  static_files: angular-seed/app\1/index.html
-  upload: angular-seed/app/index\.html
+  static_files: static\1/index.html
+  upload: static/index\.html
   mime_type: text/html; charset=utf-8
 
 - url: (/.*\.css)
-  static_files: angular-seed/app\1
-  upload: angular-seed/app/.*\.css
+  static_files: static\1
+  upload: static/.*\.css
   mime_type: text/css; charset=utf-8
 
 - url: (/.*\.html)
-  static_files: angular-seed/app\1
-  upload: angular-seed/app/.*\.html
+  static_files: static\1
+  upload: static/.*\.html
   mime_type: text/html; charset=utf-8
 
 - url: (/.*\.js)
-  static_files: angular-seed/app\1
-  upload: angular-seed/app/.*\.js
+  static_files: static\1
+  upload: static/.*\.js
   mime_type: text/javascript; charset=utf-8
