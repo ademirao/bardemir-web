@@ -30,6 +30,16 @@ var bardemirMain = function () {
     $("#login_frame").remove();
   });
   $("#spinner").hide();
+  button = $("<button>List</button>");
+  button.click(function () {
+      gapi.client.bardemir.posts.list({"auth": facebook_token }).execute(function(response) {
+            for (i in response.items) {
+              post_div = $("<div class=post><pre>"+ response.items[i].title  + "</pre></div>");
+              $("#main_frame").append(post_div);
+            }
+          });
+  });
+  $("#main_frame").append(button);
 }
 
 $(document).ready(function() {

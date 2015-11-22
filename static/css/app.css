@@ -1,5 +1,11 @@
 /* app css stylesheet */
 
+.post {
+  padding: 10px;
+  margin: 2px;
+  border: 1px solid black;
+}
+
 #login_frame {
   width: 500px;
   height: 100px;
