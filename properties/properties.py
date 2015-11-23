@@ -38,11 +38,33 @@ def home_page():
   <input type="submit" name=change value="define">
   <input type="submit" name=reset value="reset">
 </form>
-
 </body>
 </html>
 """
 
+def backenduri():
+  if os.environ['SERVER_SOFTWARE'].startswith('Development'):
+    return "http://localhost:8080"
+  return "https://bardemir-api.appspot.com"
+
+def hosturi():
+  if os.environ['SERVER_SOFTWARE'].startswith('Development'):
+    return "http://localhost:9090"
+  return "https://bardemir-web.appspot.com"
+
+def redirect_url():
+  return "%s/facebook/login" % hosturi()
+
+def propertiesJs():
+  return """
+    var BARDEMIR_BACKEND="%s";
+    var BARDEMIR_HOST="%s";""" % (
+      backenduri(),hosturi());
+
+class PropertiesJS(webapp2.RequestHandler):
+  def get(self):
+    self.response.headers['Content-Type'] = 'application/x-javascript'
+    self.response.write(propertiesJs())
 
 class PropertyHome(webapp2.RequestHandler):
   def get(self):
@@ -73,5 +95,6 @@ class SetProperty(webapp2.RequestHandler):
 
 APPLICATION = webapp2.WSGIApplication([
   ('/properties/SetProperty', SetProperty),
+  ('/properties/properties.js', PropertiesJS),
   ('/properties.*', PropertyHome),
 ])

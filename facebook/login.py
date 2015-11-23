@@ -1,28 +1,8 @@
 import webapp2
 import json
-from properties.properties import Properties
+from properties.properties import Properties, hosturi, redirect_url
 from google.appengine.api import urlfetch
-from google.appengine.ext import ndb
-import os
 
-def redirect_url():
-  if os.environ['SERVER_SOFTWARE'].startswith('Development'):
-    return "http://localhost:9090/facebook/login"
-  return "https://bardemir-api.appspot.com/facebook/login"
-
-def home_page():
-  return """
-<html>
-<body>
-</br>
-</br>
-</html>
-""" % redirect_url()
-
-class HomePage(webapp2.RequestHandler):
-  def get(self):
-    self.response.headers['Content-Type'] = 'text/html charset=utf-8'
-    self.response.write(home_page())
 
 class LoginPage(webapp2.RequestHandler):
   def get(self):
@@ -43,9 +23,8 @@ class LoginPage(webapp2.RequestHandler):
     result = urlfetch.fetch(url)
     jsonobject = json.loads(result.content)
     self.response.headers['Set-Cookie'] = "facebook_access_token=%s; path=/;" % str(jsonobject['access_token'])
-    self.response.write('<meta http-equiv="refresh" content="0; url=http://localhost:9090/" />');
+    self.response.write('<meta http-equiv="refresh" content="0; url=%s/" />' % hosturi());
 
 APPLICATION = webapp2.WSGIApplication([
   ('/facebook/login', LoginPage),
-  ('/facebook.*', HomePage),
 ], debug=True)

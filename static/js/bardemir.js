@@ -11,7 +11,7 @@ function getCookie(cname) {
 
 
 function loadBardemirApi() {
-  var bardemir = 'http://localhost:8080/_ah/api';
+  var bardemir = BARDEMIR_BACKEND + "/_ah/api";
   gapi.client.load('bardemir', 'v1', function() { bardemirMain(); }, bardemir);
 }
 
@@ -19,7 +19,7 @@ var bardemirMain = function () {
   $("#spinner").show();
   facebook_token = getCookie("facebook_access_token");
   if (facebook_token == null) {
-    var login_frame = $('<a id="login_frame" href="https://www.facebook.com/dialog/oauth?client_id=433202543531394&redirect_uri=http://localhost:9090/facebook/login&scope=user_managed_groups,user_events">Allow Bardemir to see my facebook information</a>');
+    var login_frame = $('<a id="login_frame" href="https://www.facebook.com/dialog/oauth?client_id=433202543531394&redirect_uri=' + BARDEMIR_HOST +  '/facebook/login&scope=user_managed_groups,user_events">Allow Bardemir to see my facebook information</a>');
     login_frame.display = "none";
     login_frame.appendTo("#main_frame");
     login_frame.fadeIn("slow");
