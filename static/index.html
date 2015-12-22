@@ -1,22 +1,37 @@
 <!doctype html>
 <html lang="en" ng-app="myApp">
 <head>
-<meta charset="utf-8">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/jquery.cookie/1.4.1/jquery.cookie.min.js"></script>
-<link rel="stylesheet" href="css/app.css"/>
-<script src="properties/properties.js"></script>
-<script src="js/bardemir.js">
+<link href='https://fonts.googleapis.com/css?family=Roboto:400,400italic,500italic,500' rel='stylesheet' type='text/css'>
+
+  <meta charset="utf-8">
+  <title>Bardemir</title> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/jquery.cookie/1.4.1/jquery.cookie.min.js"></script>
+  <link rel="stylesheet" href="css/app.css"/>
+ 
+  <script src="properties/properties.js"></script>
+  <script src="js/bardemir.js">
+  <script src="js/ui.js">
 </script>
 
 </head>
 <body>
-<div id=header>
-<span id=didnotlike>Não gostou da interface? Foda-se</span>
-<a href=# id=logout>Logout</a></br>
-</div>
-<div id='main_frame'>
-</div>
-<div id='spinner'></div>
+<div data-role="page">
+  <div id='topnav'>
+    <ul class=header>
+    <li class=logo id=logo>Bardemir</li>
+    </ul>
+  </div><!-- /header -->
+  <div id='main_frame'> 
+  </div><!-- /content -->
+  <div id=bottomnav>
+    <ul class='menu' id='menu_items'>
+    </ul>
+  </div>
+  <div id='spinner'></div>
+</div><!-- /page -->
+
+
 </body>
 </html>

@@ -1,9 +1,15 @@
 /* app css stylesheet */
 
+body {
+  font-family: 'Roboto', sans-serif;
+  color: #333333;
+  margin: 0em;
+}
+
 .post {
   padding: 10px;
   margin: 2px;
-  border: 1px solid black;
+  border: 1px solid #333333;
 }
 
 #login_frame {
@@ -15,52 +21,81 @@
 }
 
 #spinner {
-    display:    none;
-    position:   fixed;
-    z-index:    1000;
-    top:        0;
-    left:       0;
-    height:     100%;
-    width:      100%;
-    background: rgba( 255, 255, 255, .8 ) 
-                url('http://i.stack.imgur.com/FhHRx.gif') 
-                50% 50% 
-                no-repeat;
+  display:    none;
+  position:   fixed;
+  z-index:    1000;
+  top:        0;
+  left:       0;
+  height:     100%;
+  width:      100%;
+  background: rgba( 255, 255, 255, .8 ) 
+              url('http://i.stack.imgur.com/FhHRx.gif') 
+              50% 50% 
+              no-repeat;
 }
 
-#didnotlike {
-  float: left;
+#topnav {
+  width: 100%;
+  top: 0px;
+  
+  position: fixed;
+  background: #ac3939;
+  border-bottom: 0.1em solid #333333;
+  color: #EEEEEE;
+  height: 2em;
+}
+#main_frame {
+  position: fixed;
+  top: 2.1em;
+  bottom: 4.1em;
+  width: 100%;
+  overflow: auto;
+}
+#bottomnav{
+  border-top: 0.1em solid #333333;
+  background: #ac3939;
+  color: #EEEEEE;
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  height: 4em;
+}
+
+
+.logo {
+  font-size: 130%;
 }
 
 #logout {
-  float: right;
+}
+
+.header {
+  padding: 0em;
+  margin: 0.25em;
+  list-style: none;
+}
+
+.header li {
+  display: inline; 
+  cursor: default;
+  list-style-type: none;
+  padding: 0.25em;
 }
 
 .menu {
   list-style: none;
-  border-bottom: 0.1em solid black;
-  margin-bottom: 2em;
-  padding: 0 0 0.5em;
+  padding: 0em;
+}
+.menu li {
+  display: inline; 
+  cursor: default;
+  list-style-type: none;
+  padding: 1em;
 }
 
-.menu:before {
-  content: "[";
-}
-
-.menu:after {
-  content: "]";
-}
-
-.menu > li {
-  display: inline;
-}
-
-.menu > li:before {
-  content: "|";
-  padding-right: 0.3em;
-}
-
-.menu > li:nth-child(1):before {
-  content: "";
-  padding: 0;
+.selected {
+  background: white;
+  border: 1px solid #333333;
+  color: #ac3939;
+  border-top: 1px solid white;
 }
