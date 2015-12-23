@@ -1,5 +1,6 @@
 APP_PROPERTIES = {
   facebookToken: null,
+  googleBrowserKey: "AIzaSyDNTbyli1Crny1z2fH8B3fhEev0v6jjfQU",
 }
 
 function getCookie(cname) {
@@ -19,11 +20,6 @@ function loadBardemirApi() {
   gapi.client.load('bardemir', 'v1', function() { bardemirMain(); }, bardemir);
 }
 
-function MenuItem(name, onClick) {
-  this.name = name;
-  this.onClick = onClick;
-}
-
 function listPosts() {
   gapi.client.bardemir.posts.list({"auth": APP_PROPERTIES.facebookToken}).execute(function(response) {
       $("#main_frame").empty();
@@ -34,30 +30,71 @@ function listPosts() {
   });
 }
 
+BARDEMIR_LAT_LONG = {lat: -19.8887119, lng:-43.9949358}
+
+BARDEMIR_LOCATION = {
+  zoom: 16,
+  center: BARDEMIR_LAT_LONG
+}
+
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('caronasMap'), BARDEMIR_LOCATION)
+  var marker = new google.maps.Marker({
+    position: BARDEMIR_LAT_LONG,
+    map: map,
+    title: 'Bardemir!',
+  });
+}
+
 function caronas() {
   mainFrame = $("#main_frame");
   mainFrame.empty();
   need = $("<button>Quero</button>");
   offer = $("<button>Ofereço</button>");
   share = $("<button>Compartilhar Taxi</button>");
+  share = $("<button>Bardemir</button>");
+  mapDiv = $("<div id=caronasMap></div>")
+  map = $('<script src="https://maps.googleapis.com/maps/api/js' +
+      '?key=' + APP_PROPERTIES.googleBrowserKey + '&signed_in=false&callback=initMap" async defer></script>');
   mainFrame.append(need);
   mainFrame.append(offer);
   mainFrame.append(share);
+  mainFrame.append(mapDiv);
+  mainFrame.append(map);
 }
 
-function decorateMenu(menuItem) {
+function MenuItem(id, name, onClick) {
+  var self = this;
+  self.id = id;
+  self.name = name;
+  self.onClick = onClick;
+  self.li = $('<li class=unselected>' + name + '</li>');
+  self.li.click(function() { navigateToItem(self); });
 }
 
-MENU_ITEMS = [
-  new MenuItem('Eventos', null),
-  new MenuItem('Playlists', null),
-  new MenuItem('Caronas', caronas),
-  new MenuItem('G. Estudos', listPosts),
-]
+function navigateToItem(menuItem) {
+  $("#menu_items li").switchClass("selected", "unselected", 200, "easeInExpo");
+  menuItem.li.switchClass("unselected", "selected", 0);
+  menuItem.onClick();
+}
 
-function setMenuSelection(i) {
-  $("#menu_items li").removeClass("selected");
-  $("#menu_items").children().eq(i).addClass("selected");
+function empty() {
+ $("#main_frame").empty();
+}
+
+function main() {
+  menuItemsArray = [
+    new MenuItem('events', 'Eventos', empty),
+    new MenuItem('playlists', 'Playlists', empty),
+    new MenuItem('rides', 'Caronas', caronas),
+    new MenuItem('studygroup', 'G. Estudos', listPosts),
+  ]
+
+  menuItems = $("#menu_items");
+  for (i in menuItemsArray) {
+    menuItem = menuItemsArray[i];
+    menuItems.append(menuItem.li);
+  }
 }
 
 var bardemirMain = function () {
@@ -75,18 +112,7 @@ var bardemirMain = function () {
     $("#login_frame").remove();
   });
   $("#spinner").hide();
-  
-  menuItems = $("#menu_items");
-  for (i in MENU_ITEMS) {
-    menuItem = MENU_ITEMS[i];
-    menuItemLi = $('<li>' + menuItem.name + '</li>');
-    (function(item, li) {
-        menuItemLi.click(function () {
-            setMenuSelection(li);
-            item.onClick();
-            })})(menuItem, i);
-    menuItems.append(menuItemLi);
-  }
+  main();
 }
 
 $(document).ready(function() {

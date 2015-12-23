@@ -1,5 +1,10 @@
 /* app css stylesheet */
 
+
+#caronasMap {
+  height: 100%;
+}
+
 body {
   font-family: 'Roboto', sans-serif;
   color: #333333;
@@ -37,65 +42,77 @@ body {
 #topnav {
   width: 100%;
   top: 0px;
-  
   position: fixed;
-  background: #ac3939;
-  border-bottom: 0.1em solid #333333;
-  color: #EEEEEE;
-  height: 2em;
+  background: #FFFFFF;
+  color: #cc0000;
+  height: 3em;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
 }
 #main_frame {
   position: fixed;
-  top: 2.1em;
-  bottom: 4.1em;
+  top: 3.1em;
+  bottom: 3.1em;
   width: 100%;
   overflow: auto;
 }
 #bottomnav{
-  border-top: 0.1em solid #333333;
-  background: #ac3939;
-  color: #EEEEEE;
+  box-shadow: 0px 0px 20px rgba(204, 0, 0, 0.6);
+  background: #cc0000;
   width: 100%;
   position: fixed;
   bottom: 0px;
-  height: 4em;
+  height: 3.3em;
 }
 
+#logo {
+  width: 15em;
+  height: 3em;
+}
+#logo_img {
+  margin-bottom: 0.5em;
+  margin-top: 0.5em;
+  margin-left: 1em;
+  margin-right: 0.25em;
+}
 
-.logo {
+#logo_text {
+  display: inline;
+  position: absolute;
+  font-weight: 500;
   font-size: 130%;
+  margin: 0.5em;
+  margin-top: 0.6em;
+  margin-left: 0.4em;
+  vertical-align: middle;
 }
 
 #logout {
-}
-
-.header {
-  padding: 0em;
-  margin: 0.25em;
-  list-style: none;
-}
-
-.header li {
-  display: inline; 
-  cursor: default;
-  list-style-type: none;
-  padding: 0.25em;
+  text-decoration: underline;
+  top: 0.25em;
+  right: 2em;
+  font-size: 80%;
+  position:   fixed;
 }
 
 .menu {
   list-style: none;
   padding: 0em;
+  border-top: 3px solid #cc0000;
 }
 .menu li {
   display: inline; 
   cursor: default;
   list-style-type: none;
   padding: 1em;
+  margin: 1em;
+}
+
+.unselected {
+  color: #DDDDDD;
 }
 
 .selected {
-  background: white;
-  border: 1px solid #333333;
-  color: #ac3939;
-  border-top: 1px solid white;
+  border-top: 3px solid white;
+  color: #FFFFFF;
+  font-weight: 500;
 }
