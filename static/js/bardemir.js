@@ -87,7 +87,7 @@ function main() {
     new MenuItem('events', 'Eventos', empty),
     new MenuItem('playlists', 'Playlists', empty),
     new MenuItem('rides', 'Caronas', caronas),
-    new MenuItem('studygroup', 'G. Estudos', listPosts),
+    new MenuItem('studygroup', 'Estudos', listPosts),
   ]
 
   menuItems = $("#menu_items");

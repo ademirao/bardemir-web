@@ -61,7 +61,8 @@ body {
   width: 100%;
   position: fixed;
   bottom: 0px;
-  height: 3.3em;
+  height: 2.5em;
+  overflow: auto;
 }
 
 #logo {
@@ -95,16 +96,19 @@ body {
 }
 
 .menu {
+  font-size: 90%;
   list-style: none;
   padding: 0em;
   border-top: 3px solid #cc0000;
+  margin: 1em;
+  margin-top: 0.3em;
 }
 .menu li {
   display: inline; 
   cursor: default;
   list-style-type: none;
-  padding: 1em;
-  margin: 1em;
+  padding: 0.6em;
+  padding-top: 0.3em;
 }
 
 .unselected {
