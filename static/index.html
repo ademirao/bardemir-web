@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Bardemir</title> 
+    <title>Bardemir</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.cookie/1.4.1/jquery.cookie.min.js"></script>
@@ -14,75 +14,103 @@
     <script src="js/bardemir.js"></script>
   </head>
   <body>
-    <div id=common-header>
+    <div id="header-common">
       <h1>Bardemir</h1>
-      <a  page-href="logout" class="ui-btn ui-btn-right ui-icon-delete ui-btn-icon-left">Logout</a>
+      <a page-href="page-logout"
+         class="ui-btn ui-btn-right ui-icon-delete ui-btn-icon-left">Logout</a>
     </div>
-    <div id=common-footer>
-      <div data-role="navbar" data-iconpos="left" id=navbar>
+    <div id="footer-common">
+      <div data-role="navbar"
+           data-iconpos="left">
         <ul>
-          <li><a page-href="rides" data-icon=navigation >Caronas</a></li>
-          <li><a page-href="events" data-icon=calendar >Events</a></li>
-          <li><a page-href="playlists" data-icon=audio >Playlists</a></li>
-          <li><a page-href="studies" data-icon=bars >Estudos</a></li>
+          <li><a page-href="page-rides" data-icon=navigation >Caronas</a></li>
+          <li><a page-href="page-events" data-icon=calendar >Events</a></li>
+          <li><a page-href="page-playlists" data-icon=audio >Playlists</a></li>
+          <li><a page-href="page-studies" data-icon=bars >Estudos</a></li>
         </ul>
       </div>
     </div>
-    <div data-role="page" id=rides >
-      <div data-id=bardemir-header></div>
-      <div data-role="main" class="ui-content" id=rides_container>
-        <div id=map_menu_top>
-          <div data-role="collapsible" data-collapsed-icon="search" data-expanded-icon="search" data-iconpos="right" data-mini="true">
+    <div id="page-rides" data-role="page">
+      <div data-id="header-common"></div>
+      <div id="main-rides" data-role="main" class="ui-content">
+        <div id="menu-map-left">
+          <div id="collapsible-search" data-role="collapsible"
+                                       data-collapsed-icon="search"
+                                       data-expanded-icon="search"
+                                       data-iconpos="right"
+                                       data-mini="true">
             <h3>Mostrar  no mapa</h3>
-            <div id=search_group data-role="controlgroup" data-type="horizontal" data-mini=true>
-              <select id=search_option data-inline="true">
-                <option value=route>Rota</option>
-                <option value=place >Local</option>
+            <div id=controlgroup-search data-role="controlgroup"
+                                        data-type="horizontal"
+                                        data-mini=true>
+              <select id="select-search" data-inline=true>
+                <option value="route">Rota</option>
+                <option value="place">Local</option>
               </select>
-              <input id="origin" data-wrapper-class="controlgroup-textinput ui-btn" type="search"/>
-              <button id=search href="#" class="ui-btn ui-corner-all ui-icon-search ui-btn-icon-left ui-btn-icon-notext">Search</button>
+              <input id="input-search"
+                     type="search"
+                     data-wrapper-class="controlgroup-textinput ui-btn"/>
+              <button id="button-search"
+                      href="#"
+                      class="ui-btn ui-corner-all ui-icon-search ui-btn-icon-left ui-btn-icon-notext">
+                Search</button>
             </div>
           </div>
-          <div data-role="collapsible" data-collapsed-icon="bullets" data-expanded-icon="bullets" data-iconpos="right" data-mini="true">
+          <div data-role="collapsible"
+               data-collapsed-icon="bullets"
+               data-expanded-icon="bullets"
+               data-iconpos="right"
+               data-mini="true">
             <h1>Disponíveis</h1>
-            <p> Caronas disponiveis por data</p>
+            <p>Caronas disponiveis por data</p>
           </div>
         </div>
-        <div id=map_menu_bottom>
-          <a href=# id=bardemir class="ui-btn ui-corner-all ui-icon-home ui-btn-icon-left ui-btn-icon-notext">Bardemir</a>
-          <a id=offer_button href="#menu" class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-left ui-btn-icon-notext">Oferecer</a>
+        <div id="menu-map-right">
+          <button id="button-offer"
+             href="#"
+             class="ui-btn"></button><br/>
+          <button id="button-share"
+             href="#"
+             class="ui-btn"></button><br/>
+          <button id="button-ask"
+             href="#"
+             class="ui-btn"></button>
+          <button id="button-bardemir"
+             href="#"
+             class="ui-btn ui-corner-all ui-icon-home ui-btn-icon-left ui-btn-icon-notext">
+            Bardemir</button>
         </div>
-        <div id=bardemir_map></div>
+        <div id="div-map"></div>
       </div>
-      <div data-id="bardemir-footer"></div>
-    </div> 
-    <div data-role="page" id=events>
-      <div data-id=bardemir-header></div>
+      <div data-id="footer-common"></div>
+    </div>
+    <div id="page-events" data-role="page">
+      <div data-id="header-common"></div>
       <div data-role="main" class="ui-content">
         <p>Events...</p>
       </div>
-      <div data-id=bardemir-footer></div>
+      <div data-id="footer-common"></div>
     </div>
-    <div data-role="page" id=playlists>
-      <div data-id=bardemir-header></div>
+    <div id="page-playlists" data-role="page">
+      <div data-id="header-common"></div>
       <div data-role="main" class="ui-content">
         <p>Playlists...</p>
       </div>
-      <div data-id=bardemir-footer></div>
+      <div data-id="footer-common"></div>
     </div>
-    <div data-role="page" id=studies>
-      <div data-id=bardemir-header></div>
+    <div id="page-studies" data-role="page">
+      <div data-id="header-common"></div>
       <div data-role="main" class="ui-content">
         <p>Studies...</p>
       </div>
-      <div data-id=bardemir-footer></div>
+      <div data-id="footer-common"></div>
     </div>
-    <div data-role="page" id=logout  data-dialog="true">
+    <div id="page-logout" data-role="page" data-dialog="true">
       <p>
-      Olá, para usar o site do bardemir vc precisa permitir que utilizemos suas informações do facebook
+      Olá, para usar o site do bardemir vc precisa permitir que utilizemos suas
+      informações do facebook
       </p>
-      <a id=permission class="ui-btn">Permitir</a>
-      <!-- a href=></a-->
+      <a id="button-permission" class="ui-btn">Permitir</a>
     </div>
   </body>
 </html>

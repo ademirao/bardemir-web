@@ -17,28 +17,65 @@
   border-top:none !important;
 }
 
-#offer_button:after {
+#button-ask {
+  display: none;
+  border: 5px solid white;
+  background-color: #db4437;
+  background-image: url(/img/hand-ride.png);
+  background-size: 50px 50px;
+  background-repeat: no-repeat;
+  border-radius: 60px;
+  width: 60px;
+  height: 60px;
+  background-position: center center
+}
+
+#button-share {
+  display: none;
+  border: 5px solid white;
+  background-color: #db4437;
+  background-image: url(/img/taxi-share.png);
+  background-position: center center;
+  background-size: 36px;
+  background-repeat: no-repeat;
+  border-radius: 60px;
+  width: 60px;
+  height: 60px;
+}
+
+#button-offer {
+  display: none;
+  border: 5px solid white;
+  background-color: #db4437;
+  background-image: url(/img/car-share.png);
+  background-position: center center;
+  background-size: 45px;
+  background-repeat: no-repeat;
+  border-radius: 60px;
+  width: 60px;
+  height: 60px;
+}
+
+#button-bardemir:after {
   background-color: #4da6ff;
 }
 
-#search_button:after {
-  background-color: #4da6ff;
-}
-#bardemir:after {
-  background-color: #4da6ff;
-}
-
-#map_menu_top .ui-collapsible-heading .ui-btn {
+#menu-map-left .ui-collapsible-heading .ui-btn {
   background-color: rgba(210, 210, 210, 0.6) !important;
 }
 
-#map_menu_top .ui-collapsible-content {
+#menu-map-left .ui-collapsible-content {
   background-color: rgba(255, 255, 255, 0.6) !important;
   margin: 0.1em;
   padding: 0.1em;
 }
 
-#map_menu_top {
+#menu-map-right .ui-btn {
+  margin: auto !important;
+  margin-bottom: 0.3em !important;
+}
+
+#menu-map-left {
   cursor: pointer !important;
   display: block;
   float: right;  
@@ -48,17 +85,17 @@
   left: 0px;
 }
 
-#map_menu_bottom {
+#menu-map-right {
   cursor: pointer !important;
   display: block;
   float: right;  
   z-index: 1;
   position: absolute;
   bottom: 120px;
-  right: 0px;
+  right: 10px;
 }
 
-#rides_container {
+#main-rides {
   padding: 0;
   position : absolute !important;
   top : 40px !important;
@@ -67,7 +104,7 @@
   left : 0 !important;
 }
 
-#bardemir_map{
+#div-map {
   height: 100%;
   width: 100%;
 }
@@ -76,10 +113,10 @@ body {
   display: none;
 }
 
-#common-footer {
+#footer-common {
   display: none;
 }
 
-#common-header {
+#header-common {
   display: none;
 }

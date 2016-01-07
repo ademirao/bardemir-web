@@ -37,7 +37,7 @@ handlers:
   upload: static/.*\.js
   mime_type: text/javascript; charset=utf-8
 
-- url: (/.*\.svg)
+- url: (/.*)
   static_files: static\1
-  upload: static/.*\.svg
+  upload: static/.*
   mime_type: image/svg+xml; charset=utf-8

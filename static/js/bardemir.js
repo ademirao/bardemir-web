@@ -38,7 +38,7 @@ var currentMark;
 var map;
 
 function initMap() {
-  mapDiv = document.getElementById('bardemir_map');
+  mapDiv = document.getElementById('div-map');
   map = new google.maps.Map(mapDiv, {
     zoom: 16,
     center: BARDEMIR_LAT_LONG,
@@ -71,7 +71,7 @@ function initMap() {
 function calcRoute() {
   clearCurrentMarker();
   var request = {
-    origin: $('#origin').val(),
+    origin: $('#input-search').val(),
     destination: BARDEMIR_LAT_LONG,
     travelMode: google.maps.TravelMode.DRIVING
   };
@@ -88,7 +88,7 @@ function calcRoute() {
 function findLocation() {
   clearCurrentRoute();
   geocoder.geocode({
-    address: $("#origin").val()
+    address: $("#input-search").val()
   }, function(results, status) {
     if (status == google.maps.GeocoderStatus.OK) {
       map.setCenter(results[0].geometry.location);
@@ -154,24 +154,24 @@ function clearOffers() {
 
 $(document).on("pagebeforecreate", function(event) {
   var target = $(event.target);
-  target.find("[data-id=bardemir-header]").each(function(idx, v) {
+  target.find("[data-id=header-common]").each(function(idx, v) {
     $(v).attr("data-role", "header");
     $(v).attr("data-position", "fixed");
     if ($(v).attr("custom-header") !== undefined) {
       return;
     }
-    $(v).append($("#common-header").children().clone());
+    $(v).append($("#header-common").children().clone());
   });
-  target.find("[data-id=bardemir-footer]").each(function(idx, v) {
+  target.find("[data-id=footer-common]").each(function(idx, v) {
     $(v).attr("data-role", "footer");
     $(v).attr("data-position", "fixed");
-    $(v).append($("#common-footer").children().clone());
+    $(v).append($("#footer-common").children().clone());
   });
   target.find("[page-href]").each(function(t) {
       return function(idx, v) {
         $(v).attr("data-transition", "none");
         page = $(v).attr("page-href");
-        if (page == "logout") {
+        if (page == "page-logout") {
           $(v).click(function() {
             logout();
             location.reload();
@@ -190,8 +190,8 @@ $(document).on("pagebeforecreate", function(event) {
 });
 
 
-$(document).on("pagebeforecreate", "#rides", function(event) {
-  $("#rides_container").append($('<script src="https://maps.googleapis.com/' +
+$(document).on("pagebeforecreate", "#page-rides", function(event) {
+  $("#main-rides").append($('<script src="https://maps.googleapis.com/' +
         'maps/api/js?key=AIzaSyDNTbyli1Crny1z2fH8B3fhEev0v6jjfQU&' +
         'signed_in=false&callback=initMap"async defer></script>'));
 })
@@ -201,37 +201,50 @@ function logout() {
 }
 
 function search() {
-  if ($("#origin").val()) { 
-    var option = $("#search_option").val();
+  if ($("#input-search").val()) { 
+    var option = $("#select-search").val();
     switch(option) {
       case "route":
         calcRoute();
+        $("#button-offer").show(600, "swing");
+        $("#button-share").show(600, "swing");
+        $("#button-ask").hide(600, "swing");
         break;
       case "place":
         findLocation();
+        $("#button-offer").hide(600, "swing");
+        $("#button-share").hide(600, "swing");
+        $("#button-ask").show(600, "swing");
         break;
     }
-  } else {
-    clearCurrentRoute();
-    clearCurrentMarker();
+    return;
   }
+  clearCurrentRoute();
+  clearCurrentMarker();
+  $("#button-offer").hide(600, "swing");
+  $("#button-share").hide(600, "swing");
+  $("#button-ask").hide(600, "swing");
 }
 
-$(document).on("pagebeforeshow", "#rides", function(event) {
-  $("#origin").on("change", search);
-  $("#search_option").on("change", search);
-  $("#search").click(search);
+$(document).on("pagebeforeshow", "#page-rides", function(event) {
+  var search_closure = function() {
+    search();
+    $("#collapsible-search").collapsible("collapse");
+  }
+  $("#input-search").on("change", search_closure);
+  $("#button-search").click(search_closure);
+  $("#select-search").on("change", search);
   $("#show_rides").click(function () {
     if ($(this).val() == "all") showOffers();
     else if ($(this).val() == "none") clearAllRoutes();
   });
-  $("#offer_button").click(addOffer);
-  $("#bardemir").click(function() { map.setCenter(BARDEMIR_LAT_LONG); });
+  $("#button-offer").click(addOffer);
+  $("#button-bardemir").click(function() { map.setCenter(BARDEMIR_LAT_LONG); });
   showOffers();
 });
 
-$(document).on("pagebeforeshow", "#logout", function(event) {
-  $("#permission").click(function() {
+$(document).on("pagebeforeshow", "#page-logout", function(event) {
+  $("#button-permission").click(function() {
     window.location.replace('https://www.facebook.com/dialog/oauth?client_id=433202543531394&redirect_uri=' + BARDEMIR_HOST +  '/facebook/login&scope=user_managed_groups,user_events');
   });
 });
@@ -248,10 +261,10 @@ $(document).on("pagecontainerbeforechange", function(event, data) {
   } else {
     to = $(to);
   }
-  if (to.attr("id") != "logout") {
+  if (to.attr("id") != "page-logout") {
     APP_PROPERTIES.facebookToken = getCookie("facebook_access_token");
     if (APP_PROPERTIES.facebookToken == null) {
-      window.location.replace("#logout");
+      window.location.replace("#page-logout");
       event.preventDefault();
       return;
     }
