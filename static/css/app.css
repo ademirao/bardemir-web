@@ -19,12 +19,12 @@
 
 #button-ask {
   display: none;
-  border: 5px solid white;
-  background-color: #db4437;
+  border: 5px solid #F6F6F6;
+  background-color: #4DA6FF;
   background-image: url(/img/hand-ride.png);
   background-size: 50px 50px;
   background-repeat: no-repeat;
-  border-radius: 60px;
+  border-radius: 45px;
   width: 60px;
   height: 60px;
   background-position: center center
@@ -32,8 +32,8 @@
 
 #button-share {
   display: none;
-  border: 5px solid white;
-  background-color: #db4437;
+  border: 5px solid #F6F6F6;
+  background-color: #4DA6FF;
   background-image: url(/img/taxi-share.png);
   background-position: center center;
   background-size: 45px;
@@ -45,8 +45,8 @@
 
 #button-offer {
   display: none;
-  border: 5px solid white;
-  background-color: #db4437;
+  border: 5px solid #F6F6F6;
+  background-color: #4DA6FF;
   background-image: url(/img/car-share.png);
   background-position: center center;
   background-size: 45px;
@@ -57,7 +57,7 @@
 }
 
 #button-bardemir:after {
-  background-color: #4da6ff;
+  background-color: #4DA6FF;
 }
 
 #menu-map-left .ui-collapsible-heading .ui-btn {
