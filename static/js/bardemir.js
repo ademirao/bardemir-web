@@ -1,32 +1,11 @@
-APP_PROPERTIES = {
+var APP_PROPERTIES = {
   facebookToken: null,
   googleBrowserKey: "AIzaSyDNTbyli1Crny1z2fH8B3fhEev0v6jjfQU",
 }
 
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1);
-        if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
-    }
-    return null 
-}
+var BARDEMIR_LAT_LONG = {lat: -19.8887119, lng:-43.9949358}
 
-function listPosts() {
-  gapi.client.bardemir.posts.list({"auth": APP_PROPERTIES.facebookToken}).execute(function(response) {
-      $("#main_frame").empty();
-      for (i in response.items) {
-        post_div = $("<div class=post>"+ response.items[i].title  + "</div>");
-        $("#main_frame").append(post_div);
-      }
-  });
-}
-
-BARDEMIR_LAT_LONG = {lat: -19.8887119, lng:-43.9949358}
-
-BARDEMIR_LOCATION = {
+var BARDEMIR_LOCATION = {
   zoom: 16,
   center: BARDEMIR_LAT_LONG
 }
@@ -36,6 +15,10 @@ var geocoder;
 var currentRoute;
 var currentMark;
 var map;
+
+function backend() {
+  return APP_PROPERTIES.backend();
+}
 
 function initMap() {
   mapDiv = document.getElementById('div-map');
@@ -226,6 +209,10 @@ function search() {
   $("#button-ask").hide(600, "swing");
 }
 
+$(document).on("pagebeforecreate", "#page-events", function(event) {
+  backend();
+});
+
 $(document).on("pagebeforeshow", "#page-rides", function(event) {
   var search_closure = function() {
     search();
@@ -263,6 +250,12 @@ $(document).on("pagecontainerbeforechange", function(event, data) {
   }
   if (to.attr("id") != "page-logout") {
     APP_PROPERTIES.facebookToken = getCookie("facebook_access_token");
+    APP_PROPERTIES.backend = function() {
+      if (!APP_PROPERTIES.__backend) {
+        APP_PROPERTIES.__backend = new BardemirApi(APP_PROPERTIES.facebookToken);
+      }
+      return APP_PROPERTIES.__backend;
+    }
     if (APP_PROPERTIES.facebookToken == null) {
       window.location.replace("#page-logout");
       event.preventDefault();
@@ -271,18 +264,6 @@ $(document).on("pagecontainerbeforechange", function(event, data) {
   }
   $("body").show();
 });
-
-function loadBardemirApi() {
-  var bardemir = BARDEMIR_BACKEND + "/_ah/api";
-  gapi.client.load('bardemir', 'v1', function() { bardemirMain(); }, bardemir);
-}
-
-var bardemirMain = function () {
-}
-
-script_node = document.createElement("script");
-script_node.src= "https://apis.google.com/js/client.js?onload=loadBardemirApi";
-document.head.appendChild(script_node); 
 
 $(document).ready(function() {
 });
