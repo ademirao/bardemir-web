@@ -210,7 +210,15 @@ function search() {
 }
 
 $(document).on("pagebeforecreate", "#page-events", function(event) {
-  backend();
+  backend().listPosts().then(function(response) {
+    $("#events_dest").empty();
+    for (i in response.items) {
+      post_div = $("<div class=post>"+ response.items[i].title  + "</div>");
+      $("#events_dest").append(post_div);
+    }
+  }, function (reason) {
+    alert("Oh shit!!! " + pprint(reason));
+  });
 });
 
 $(document).on("pagebeforeshow", "#page-rides", function(event) {

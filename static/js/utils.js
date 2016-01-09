@@ -9,4 +9,6 @@ function getCookie(cname) {
     return null 
 }
 
-
+function pprint(obj) {
+  return JSON.stringify(obj, null, 2);
+}
