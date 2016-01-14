@@ -5,6 +5,10 @@
   padding-bottom:.1em;
 }
 
+#div-map {
+  display: none;
+}
+
 #menu {
   background-color: rgba(255, 255, 255, 0.6) !important;
 }
@@ -60,6 +64,10 @@
   background-color: #4DA6FF;
 }
 
+#button-accessibility:after {
+  background-color: #4DA6FF;
+}
+
 #menu-map-left .ui-collapsible-heading .ui-btn {
   background-color: rgba(210, 210, 210, 0.6) !important;
 }
@@ -76,8 +84,8 @@
 }
 
 #menu-map-left {
+  display: none;
   cursor: pointer !important;
-  display: block;
   float: right;  
   z-index: 1;
   position: absolute;
@@ -86,8 +94,8 @@
 }
 
 #menu-map-right {
+  display: none;
   cursor: pointer !important;
-  display: block;
   float: right;  
   z-index: 1;
   position: absolute;

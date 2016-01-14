@@ -15,39 +15,61 @@ var geocoder;
 var currentRoute;
 var currentMark;
 var map;
+var rideRenderersPool = new RideRenderersPool();
+var hitchhikingRenderersPool = new HitchhikingRenderersPool();
 
 function backend() {
   return APP_PROPERTIES.backend();
 }
 
+var DEFAULT_ZINDEX = 99997;
+var ROUTE_ZINDEX = 99998;
+var TOP_ZINDEX = 99999;
 function initMap() {
+  geocoder = new google.maps.Geocoder();
+  directionsService = new google.maps.DirectionsService();
+  currentRoute = new google.maps.DirectionsRenderer({
+    draggable: true,
+  });
+  currentMarker = new google.maps.Marker({
+    draggable: true,
+    clickable: true,
+    zIndex: TOP_ZINDEX,
+  });
+
   mapDiv = document.getElementById('div-map');
   map = new google.maps.Map(mapDiv, {
     zoom: 16,
     center: BARDEMIR_LAT_LONG,
     mapTypeControl: true,
     mapTypeControlOptions: {
-        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-        position: google.maps.ControlPosition.LEFT_BOTTOM
+      style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+      position: google.maps.ControlPosition.LEFT_BOTTOM
     },
     zoomControl: true,
     zoomControlOptions: {
-        position: google.maps.ControlPosition.RIGHT_BOTTOM
+      position: google.maps.ControlPosition.RIGHT_BOTTOM
     },
     scaleControl: true,
     streetViewControl: true,
     streetViewControlOptions: {
-        position: google.maps.ControlPosition.RIGHT_BOTTOM
+      position: google.maps.ControlPosition.RIGHT_BOTTOM
     } }
     );
-  geocoder = new google.maps.Geocoder();
-  directionsService = new google.maps.DirectionsService();
-  currentRoute = new google.maps.DirectionsRenderer({draggable: true});
-  currentMarker = new google.maps.Marker();
-  var marker = new google.maps.Marker({
-    position: BARDEMIR_LAT_LONG,
-    map: map,
-    title: 'Bardemir!',
+
+  Promise.all([listRides(), listHitchhikes()]).then(function(values) {
+    new google.maps.Marker({
+      position: BARDEMIR_LAT_LONG,
+      map: map,
+      title: 'Bardemir!',
+      zIndex: TOP_ZINDEX,
+    });
+    $('#div-map').show();
+    $('#menu-map-left').show();
+    $('#menu-map-right').show();
+    google.maps.event.trigger(map, 'resize');
+    map.setZoom(map.getZoom());
+    centerMap();
   });
 }
 
@@ -58,14 +80,16 @@ function calcRoute() {
     destination: BARDEMIR_LAT_LONG,
     travelMode: google.maps.TravelMode.DRIVING
   };
-  directionsService.route(request, function(response, status) {
-    if (status == google.maps.DirectionsStatus.OK) {
-      currentRoute.setMap(map);
-      currentRoute.setDirections(response);
-    } else {
-      alert(status);
-    }
- });
+  backend().getProfile().then(function(profile) {
+    directionsService.route(request, function(response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        currentRoute.setMap(map);
+        currentRoute.setDirections(response);
+      } else {
+        alert(status);
+      }
+    });
+  });
 }
 
 function findLocation() {
@@ -83,37 +107,55 @@ function findLocation() {
   });
 }
 
-var markers = [];
-var offers = []; 
-var colors = ["#000000", "#0000FF", "#00FF00", "#FF0000"];
-
-function color(i) {
-  return colors[i%colors.length];
+function upsertRide() {
+  return backend().getProfile().then(function(owner) {
+      return backend().upsertRide(
+          new Ride(null, owner, currentRoute.getDirections())).then(listRides)
+  }, function(reason) {
+    alert("SHIT!!" + reason);
+    return reason;
+  });
 }
 
-function label(i) {
-  return String.fromCharCode(65 + (i % 26)); 
+function upsertHitchhike() {
+  return backend().getProfile().then(function(owner) {
+    return backend().upsertHitchhike(
+        new Hitchhike(null, owner, currentMarker.getPosition())).then(listHitchhikes);
+  }, function(reason) {
+    alert("SHIT!!" + reason);
+    return reason;
+  });
 }
 
-function addOffer() {
-  if (offers.indexOf(currentRoute) > 0) {
-    return;
-  }
-  currentRoute.setOptions({
-      draggable: false,
-      markerOptions: { clickable: true, draggable: false, icon: null, label: label(offers.length) },
-      polylineOptions: { clickable: true, draggable: false, strokeColor: color(offers.length)}
-    });
-  currentRoute.setMap(map);
-  offers.push(currentRoute);
-  currentRoute = new google.maps.DirectionsRenderer({draggable: true});
+function listRides() {
+  return backend().listRides().then(function(rides) {
+    var all = [];
+    for (i in rides) {
+      all.push(rideRenderersPool.getRenderer(i)
+          .setRide(rides[i])
+          .then(function(renderer) {
+            renderer.show();
+            return renderer;
+          }));
+
+    }
+    return Promise.all(all);
+  });
 }
 
-function showOffers() {
-  clearOffers();
-  for (i in offers) {
-    offers[i].setMap(map);
-  }
+function listHitchhikes() {
+  return backend().listHitchhikes().then(function(hitches) {
+    var all = [];
+    for (i in hitches) {
+      all.push(hitchhikingRenderersPool.getRenderer(i)
+          .setHitchhike(hitches[i])
+          .then(function(renderer) {
+            renderer.show();
+            return renderer;
+          }));
+    }
+    return Promise.all(all);
+  });
 }
 
 function clearCurrentRoute() {
@@ -130,8 +172,38 @@ function clearAllRoutes() {
 }
 
 function clearOffers() {
-  for (i in offers) {
-    offers[i].setMap(null);
+  var renderers = rideRenderersPool.getRenderers();
+  for (i in renderers) {
+    renderers[i].hide();
+  }
+}
+
+function centerMap() {
+  var bardemirLatLng = new google.maps.LatLng(
+      BARDEMIR_LAT_LONG.lat, BARDEMIR_LAT_LONG.lng);
+  var bounds = new google.maps.LatLngBounds();
+  bounds.extend(bardemirLatLng);
+  var markers = hitchhikingRenderersPool.getRenderers();
+  for (i in markers) {
+    var marker = markers[i];
+    var pos = marker.getPosition();
+    if (pos != null) {
+      bounds.extend(pos);
+    }
+  }
+
+  var renderers = rideRenderersPool.getRenderers();
+  for (i in renderers) {
+    var renderer = renderers[i];
+    var origin = renderer.getOrigin();
+    if (origin != null) {
+      bounds.extend(origin);
+    }
+  }
+
+  map.fitBounds(bounds);
+  if (map.getZoom() > 16) {
+    map.setZoom(16);
   }
 }
 
@@ -210,14 +282,14 @@ function search() {
 }
 
 $(document).on("pagebeforecreate", "#page-events", function(event) {
-  backend().listPosts().then(function(response) {
+  backend().listPosts().then(function(posts) {
     $("#events_dest").empty();
-    for (i in response.items) {
-      post_div = $("<div class=post>"+ response.items[i].title  + "</div>");
+    for (i in posts) {
+      post_div = $("<div class=post>"+ posts[i] + "</div>");
       $("#events_dest").append(post_div);
     }
   }, function (reason) {
-    alert("Oh shit!!! " + pprint(reason));
+    alert("Oh shit!!! " + reason);
   });
 });
 
@@ -225,22 +297,25 @@ $(document).on("pagebeforeshow", "#page-rides", function(event) {
   var search_closure = function() {
     search();
     $("#collapsible-search").collapsible("collapse");
-  }
+  };
   $("#input-search").on("change", search_closure);
   $("#button-search").click(search_closure);
   $("#select-search").on("change", search);
-  $("#show_rides").click(function () {
-    if ($(this).val() == "all") showOffers();
-    else if ($(this).val() == "none") clearAllRoutes();
+  $("#button-ask").click(upsertHitchhike);
+  $("#button-offer").click(upsertRide);
+  $("#button-bardemir").click(centerMap);
+  $("#button-accessibility").click(function() {
+    COLOR_PALLETE.nextPalete();
+    listRides();
+    listHitchhikes();
   });
-  $("#button-offer").click(addOffer);
-  $("#button-bardemir").click(function() { map.setCenter(BARDEMIR_LAT_LONG); });
-  showOffers();
 });
 
 $(document).on("pagebeforeshow", "#page-logout", function(event) {
   $("#button-permission").click(function() {
-    window.location.replace('https://www.facebook.com/dialog/oauth?client_id=433202543531394&redirect_uri=' + BARDEMIR_HOST +  '/facebook/login&scope=user_managed_groups,user_events');
+    window.location.replace('https://www.facebook.com/dialog/oauth?client_id=433202543531394&redirect_uri='
+        + BARDEMIR_HOST +
+        '/facebook/login&scope=user_managed_groups,user_events');
   });
 });
 
@@ -275,5 +350,4 @@ $(document).on("pagecontainerbeforechange", function(event, data) {
 
 $(document).ready(function() {
 });
-
 

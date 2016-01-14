@@ -24,14 +24,88 @@ BardemirApi.prototype.listPosts = function () {
   return this.client().then(function (client) {
     return gapiThen(client.posts.list({"auth": authToken}))
       .then(function(response) {
-        return response.result;
+        var posts = [];
+        for (i in response.result.items) {
+          var post = response.result.items[i].title;
+         posts.push(post);
+        }
+        return posts;
       });
   });
 }
 
+BardemirApi.prototype.upsertRide = function (ride) {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    console.log("adding ride...");
+    return gapiThen(client.rides.upsert({
+      "auth": authToken,
+      "ride": ride.toJSON(),
+    }));
+  });
+}
+
+BardemirApi.prototype.upsertHitchhike = function (hitchhike) {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    console.log("adding hitchhike...");
+    return gapiThen(client.hitchhike.upsert({
+      "auth": authToken,
+      "hitchhike": hitchhike.toJSON(),
+    }));
+  });
+}
+
+BardemirApi.prototype.listHitchhikes= function () {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    return gapiThen(client.hitchhike.list({"auth": authToken}))
+      .then(function(response) {
+        var results = [];
+        if (!("items" in response.result)) {
+          return results;
+        }
+        for (i in response.result.items) {
+          var result = response.result.items[i];
+          results.push(Hitchhike.fromJSON(result));
+        }
+        return results;
+      });
+  });
+}
+
+BardemirApi.prototype.listRides = function () {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    return gapiThen(client.rides.list({"auth": authToken}))
+      .then(function(response) {
+        var results = [];
+        if (!("items" in response.result)) {
+          return results;
+        }
+        for (i in response.result.items) {
+          var result = response.result.items[i];
+          results.push(Ride.fromJSON(result));
+        }
+        return results;
+      });
+  });
+}
+
+BardemirApi.prototype.getProfile = function() {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    return gapiThen(client.profile.get({"auth": authToken})).then(function(response) {
+      return response.result;
+    });
+  })
+}
+
 function __initBardemirApiClientPromise() {
+  console.log("Initializing bardemir api client");
   window.__bardemirApiClientPromise = new Promise(function (fullfill, reject) {
     window.__bardemirApiClientFullfillCallback = function() {
+      console.log("Bardemir api client initialized");
       fullfill(gapi.client.bardemir);
     }
     var script_node = document.createElement("script");
