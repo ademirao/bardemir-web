@@ -27,7 +27,7 @@ BardemirApi.prototype.listPosts = function () {
         var posts = [];
         for (i in response.result.items) {
           var post = response.result.items[i].title;
-         posts.push(post);
+          posts.push(post);
         }
         return posts;
       });

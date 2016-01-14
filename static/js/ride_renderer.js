@@ -1,17 +1,12 @@
 var DEFAULT_MARKER_OPTION  = function() {
-  return {
-    clickable: true,
-    draggable: false,
-    opacity: 0.7,
-    zIndex: DEFAULT_ZINDEX
-  };
+  return;
 };
 
 function optionForRide(styleIdx) {
   return {
     markerOptions: {
       visible: false,
-      clickable: false,
+      clickable: true,
       draggable: false
     },
     polylineOptions: {
@@ -23,71 +18,110 @@ function optionForRide(styleIdx) {
   };
 }
 
-function optionForOwnedRide() {
+function optionForOwnedRide(styleIdx) {
   return {
-    draggable: true,
-    clickable: true,
     markerOptions: {
       visible: true,
       clickable: true,
-      draggable: true,
+      draggable: false,
       icon: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4DA6FF|",
-      zIndex: ROUTE_ZINDEX,
     },
   };
 };
 
-
 function RideRenderer(styleIdx) {
-  this.mapsRenderer = new google.maps.DirectionsRenderer();
-  this.marker = null;
   this.styleIdx = styleIdx;
-
+  this.startMarker = null;
+  this.polyline = null;
+  this.ride = null;
+  this.onClick = null;
+  this.onMouseOver = null;
   var self = this;
-  this.redrawForRide = function(ride, sessionUser) {
-    if (ride.owner.id == sessionUser.id) {
-      self.mapsRenderer.setOptions(optionForOwnedRide());
-    } else {
-      var markerOptions = DEFAULT_MARKER_OPTION();
-      markerOptions.position = ride.directions.routes[0].legs[0].start_location;
-      markerOptions.title = ride.owner.name;
-      markerOptions.icon = { url: ride.owner.photoUrl };
-      if (self.marker == null) {
-        self.marker = new google.maps.Marker(markerOptions);
-      }
-      self.marker.setMap(map);
-      self.marker.setOptions(markerOptions);
-      var rendererOption = optionForRide(self.styleIdx);
-      self.mapsRenderer.setOptions(rendererOption);
+  this.redrawForRide = function(ride) {
+    var markerOptions = {
+      clickable: true,
+      draggable: false,
+      opacity: 0.7,
+      zIndex: DEFAULT_ZINDEX
+    };
+    markerOptions.position = ride.directions.routes[0].legs[0].start_location;
+    markerOptions.title = ride.owner.name;
+    markerOptions.icon = { url: ride.owner.photoUrl };
+    if (self.startMarker == null) {
+      self.startMarker = new google.maps.Marker(markerOptions);
     }
-    self.mapsRenderer.setDirections(ride.directions);
+    self.startMarker.setOptions(markerOptions);
+    var polylineOptions = {
+      path: ride.directions.routes[0].overview_path,
+      clickable: true,
+      draggable: false,
+      strokeOpacity: 0.7,
+      strokeColor: color(styleIdx),
+      strokeWeight: 4,
+    }
+    self.polyline = new google.maps.Polyline(polylineOptions);
   };
 }
 
-RideRenderer.prototype.setRide = function(ride) {
-  var self = this;
-  var redrawForRide = this.redrawForRide;
-  return backend().getProfile().then(function(sessionUser) {
-    redrawForRide(ride, sessionUser);
-    return self;
-  });
+RideRenderer.prototype.setHighlight= function(isHighlighted) {
+  if (isHighlighted) {
+    this.polyline.setOptions({
+      strokeOpacity: 1,
+    })
+    this.startMarker.setOptions({ opacity: 1 })
+  } else {
+    this.polyline.setOptions({
+      strokeOpacity: 0.7,
+    })
+    this.startMarker.setOptions({ opacity: 0.7 })
+  }
 }
+
+RideRenderer.prototype.clearListeners = function(evt) {
+  var elems = [this.polyline, this.startMarker];
+  for (i in elems) {
+    var e = elems[i];
+    if (e != null) {
+      google.maps.event.clearInstanceListeners(e);
+    } 
+  }
+}
+RideRenderer.prototype.addListener = function(evt, f) {
+  var elems = [this.polyline, this.startMarker];
+  for (i in elems) {
+    var e = elems[i];
+    if (e != null) {
+      e.addListener(evt, f);
+    } 
+  }
+}
+
+RideRenderer.prototype.setRide = function(ride) {
+  this.redrawForRide(ride);
+  this.ride = ride
+}
+
 RideRenderer.prototype.show = function() {
-  this.mapsRenderer.setMap(map);
-  if (this.marker != null) {
-    this.marker.setMap(map);
+  var elems = [this.polyline, this.startMarker];
+  for (i in elems) {
+    var e = elems[i];
+    if (e != null) {
+      e.setMap(map);
+    } 
   }
 }
 RideRenderer.prototype.hide = function() {
-  this.mapsRenderer.setMap(null);
-  if (this.marker != null) {
-    this.marker.setMap(null);
+  var elems = [this.polyline, this.startMarker];
+  for (i in elems) {
+    var e = elems[i];
+    if (e != null) {
+      e.setMap(null);
+    } 
   }
 }
 RideRenderer.prototype.getOrigin = function() {
-  var directions = this.mapsRenderer.getDirections();
-  if (directions) {
-    return directions.routes[0].legs[0].start_location;
+  if (this.ride.directions.routes[0]) {
+    return this.ride.directions.routes[0].legs[0].start_location;
   }
   return null;
 }

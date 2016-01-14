@@ -12,8 +12,8 @@ var BARDEMIR_LOCATION = {
 
 var directionsService;
 var geocoder;
-var currentRoute;
-var currentMark;
+var currentRide;
+var currentHitchhike;
 var map;
 var rideRenderersPool = new RideRenderersPool();
 var hitchhikingRenderersPool = new HitchhikingRenderersPool();
@@ -28,10 +28,11 @@ var TOP_ZINDEX = 99999;
 function initMap() {
   geocoder = new google.maps.Geocoder();
   directionsService = new google.maps.DirectionsService();
-  currentRoute = new google.maps.DirectionsRenderer({
+  currentRide = new google.maps.DirectionsRenderer({
     draggable: true,
   });
-  currentMarker = new google.maps.Marker({
+  currentRide.id = 0;
+  currentHitchhike = new google.maps.Marker({
     draggable: true,
     clickable: true,
     zIndex: TOP_ZINDEX,
@@ -74,43 +75,55 @@ function initMap() {
 }
 
 function calcRoute() {
-  clearCurrentMarker();
+  clearCurrentHitchhike();
   var request = {
     origin: $('#input-search').val(),
     destination: BARDEMIR_LAT_LONG,
     travelMode: google.maps.TravelMode.DRIVING
   };
-  backend().getProfile().then(function(profile) {
-    directionsService.route(request, function(response, status) {
-      if (status == google.maps.DirectionsStatus.OK) {
-        currentRoute.setMap(map);
-        currentRoute.setDirections(response);
-      } else {
-        alert(status);
-      }
+  return backend().getProfile().then(function(profile) {
+    return new Promise(function(fullfill, reject) {
+      directionsService.route(request, function(response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+          currentRide.setMap(map);
+          currentRide.setDirections(response);
+          fullfill(response)
+        } else {
+          reject(status);
+        }
+      });
     });
   });
 }
 
 function findLocation() {
-  clearCurrentRoute();
-  geocoder.geocode({
-    address: $("#input-search").val()
-  }, function(results, status) {
-    if (status == google.maps.GeocoderStatus.OK) {
-      map.setCenter(results[0].geometry.location);
-      currentMarker.setMap(map);
-      currentMarker.setPosition(results[0].geometry.location);
-    } else {
-      window.alert('Geocode was not successful for the following reason: ' + status);
-    }
+  clearCurrentRide();
+  return new Promise(function(fullfill, reject) {
+    geocoder.geocode({
+      address: $("#input-search").val()
+    }, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        map.setCenter(results[0].geometry.location);
+        currentHitchhike.setMap(map);
+        currentHitchhike.setPosition(results[0].geometry.location);
+        fullfill(results);
+      } else {
+        reject('Geocode was not successful for the following reason: ' + status);
+      }
+    });
   });
 }
 
 function upsertRide() {
   return backend().getProfile().then(function(owner) {
       return backend().upsertRide(
-          new Ride(null, owner, currentRoute.getDirections())).then(listRides)
+          new Ride(currentRide.id, owner, currentRide.getDirections())).then(
+          function() {
+            currentRide.id = null;
+            currentRide.setMap(null);
+            showMainButtons();
+            return listRides();
+          })
   }, function(reason) {
     alert("SHIT!!" + reason);
     return reason;
@@ -120,7 +133,7 @@ function upsertRide() {
 function upsertHitchhike() {
   return backend().getProfile().then(function(owner) {
     return backend().upsertHitchhike(
-        new Hitchhike(null, owner, currentMarker.getPosition())).then(listHitchhikes);
+        new Hitchhike(null, owner, currentHitchhike.getPosition())).then(listHitchhikes);
   }, function(reason) {
     alert("SHIT!!" + reason);
     return reason;
@@ -128,18 +141,47 @@ function upsertHitchhike() {
 }
 
 function listRides() {
-  return backend().listRides().then(function(rides) {
-    var all = [];
+  return Promise.all([
+      backend().getProfile(),
+      backend().listRides()]).then(function(result) {
+    var sessionUser = result[0];
+    var rides = result[1];
+    var renderers = [];
     for (i in rides) {
-      all.push(rideRenderersPool.getRenderer(i)
-          .setRide(rides[i])
-          .then(function(renderer) {
-            renderer.show();
-            return renderer;
-          }));
+      var renderer = rideRenderersPool.getRenderer(i);
+      renderer.setRide(rides[i]);
+      renderer.clearListeners();
+      renderer.addListener("click", function(r, isOwner) {
+        return function() {
+          r.setHighlight(true);
+          clearRides();
+          clearAllHitchhikes();
+          if (isOwner) {
+            currentRide.setDirections(r.ride.directions);
+            currentRide.setMap(map);
+            currentRide.id = r.ride.id;
+            showEditRideButtons();
+          } else {
+            showCreateHitchhikeButtons();
+          }
+        };
+      }(renderer, sessionUser.id == renderer.ride.owner.id));
+      renderer.addListener("mouseover", function (r) {
+        return function() {
+          r.setHighlight(true);
+        };
+      }(renderer));
+      renderer.addListener("mouseout", function (r) {
+        return function() {
+          r.setHighlight(false);
+        };
+      }(renderer));
+
+      renderer.show();
+      renderers.push(renderer);
 
     }
-    return Promise.all(all);
+    return renderers
   });
 }
 
@@ -158,23 +200,35 @@ function listHitchhikes() {
   });
 }
 
-function clearCurrentRoute() {
-  currentRoute.setMap(null);
+function clearCurrentRide() {
+  currentRide.setMap(null);
 }
 
-function clearCurrentMarker() {
-  currentMarker.setMap(null);
+function clearCurrentHitchhike() {
+  currentHitchhike.setMap(null);
 }
 
-function clearAllRoutes() {
-  clearCurrentRoute();
-  clearOffers();
+function clearAllRides() {
+  clearCurrentRide();
+  clearRides();
 }
 
-function clearOffers() {
+function clearAllHitchhikes() {
+  clearCurrentHitchhike();
+  clearHitchhikes();
+}
+
+function clearRides() {
   var renderers = rideRenderersPool.getRenderers();
   for (i in renderers) {
     renderers[i].hide();
+  }
+}
+
+function clearHitchhikes() {
+  var hitchhikes = hitchhikingRenderersPool.getRenderers();
+  for (i in hitchhikes) {
+    hitchhikes[i].hide();
   }
 }
 
@@ -255,30 +309,43 @@ function logout() {
   $.removeCookie('facebook_access_token');
 }
 
+function showEditRideButtons() {
+  hideAllButtons();
+  $("#menu-edit-ride").show(600, "swing")
+}
+function showCreateRideButtons() {
+  hideAllButtons();
+  $("#menu-create-ride").show(600, "swing")
+}
+
+function showCreateHitchhikeButtons() {
+  hideAllButtons();
+  $("#menu-create-hitchhike").show(600, "swing")
+}
+
+function hideAllButtons() {
+  $("#menu-map-right").children().hide(600, "swing");
+}
+
+function showMainButtons() {
+  hideAllButtons();
+  $("#menu-default").show(600, "swing")
+}
+
 function search() {
   if ($("#input-search").val()) { 
     var option = $("#select-search").val();
     switch(option) {
       case "route":
-        calcRoute();
-        $("#button-offer").show(600, "swing");
-        $("#button-share").show(600, "swing");
-        $("#button-ask").hide(600, "swing");
-        break;
+        return calcRoute().then(showCreateRideButtons);
       case "place":
-        findLocation();
-        $("#button-offer").hide(600, "swing");
-        $("#button-share").hide(600, "swing");
-        $("#button-ask").show(600, "swing");
-        break;
+        return findLocation().then(showCreateHitchhikeButtons);
     }
-    return;
+    return null;
   }
-  clearCurrentRoute();
-  clearCurrentMarker();
-  $("#button-offer").hide(600, "swing");
-  $("#button-share").hide(600, "swing");
-  $("#button-ask").hide(600, "swing");
+  clearCurrentRide();
+  clearCurrentHitchhike();
+  return Promise.resolve(null);
 }
 
 $(document).on("pagebeforecreate", "#page-events", function(event) {
@@ -293,21 +360,40 @@ $(document).on("pagebeforecreate", "#page-events", function(event) {
   });
 });
 
+function refresh() {
+  clearAllHitchhikes();
+  clearAllRides();
+  return Promise.all([listRides(), listHitchhikes()])
+}
+
 $(document).on("pagebeforeshow", "#page-rides", function(event) {
-  var search_closure = function() {
+  var onSearch = function() {
+    hideAllButtons();
+    clearAllRides();
+    clearAllHitchhikes();
     search();
     $("#collapsible-search").collapsible("collapse");
   };
-  $("#input-search").on("change", search_closure);
-  $("#button-search").click(search_closure);
+  $("#input-search").on("change", onSearch);
+  $("#button-search").click(onSearch);
   $("#select-search").on("change", search);
-  $("#button-ask").click(upsertHitchhike);
-  $("#button-offer").click(upsertRide);
+  $("#button-ask-hitchhike").click(upsertHitchhike);
+
+  $(".button-dismiss").click(function() {
+    hideAllButtons();
+    refresh().then(showMainButtons);
+  });
+
+  $("#button-update-ride").click(upsertRide);
+  $("#button-offer-ride").click(upsertRide);
+  $("#button-update-share").click(upsertRide);
+  $("#button-share-ride").click(upsertRide);
+
   $("#button-bardemir").click(centerMap);
+  $("#button-refresh").click(refresh);
   $("#button-accessibility").click(function() {
     COLOR_PALLETE.nextPalete();
-    listRides();
-    listHitchhikes();
+    refresh();
   });
 });
 
