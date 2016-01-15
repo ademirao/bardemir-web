@@ -114,30 +114,36 @@ function findLocation() {
   });
 }
 
+function shit(reason) {
+  alert("SHIT!!!" + reason);
+  return reason;
+}
+
 function upsertRide() {
-  return backend().getProfile().then(function(owner) {
-      return backend().upsertRide(
-          new Ride(currentRide.id, owner, currentRide.getDirections())).then(
-          function() {
-            currentRide.id = null;
-            currentRide.setMap(null);
-            showMainButtons();
-            return listRides();
-          })
-  }, function(reason) {
-    alert("SHIT!!" + reason);
-    return reason;
-  });
+  return backend().upsertRide(
+      new Ride(currentRide.id, null, currentRide.getDirections())
+      ).then(function() {
+    currentRide.id = null;
+    currentRide.setMap(null);
+    showMainButtons();
+    return listRides();
+  }, shit);
+}
+
+function removeRide() {
+  return backend().removeRide(currentRide.id).then(function() {
+    currentRide.id = null;
+    currentRide.setMap(null);
+    showMainButtons();
+    return listRides();
+  }, shit);
 }
 
 function upsertHitchhike() {
   return backend().getProfile().then(function(owner) {
     return backend().upsertHitchhike(
         new Hitchhike(null, owner, currentHitchhike.getPosition())).then(listHitchhikes);
-  }, function(reason) {
-    alert("SHIT!!" + reason);
-    return reason;
-  });
+  }, shit);
 }
 
 function listRides() {
@@ -334,6 +340,8 @@ function showMainButtons() {
 
 function search() {
   if ($("#input-search").val()) { 
+    clearAllRides();
+    clearAllHitchhikes();
     var option = $("#select-search").val();
     switch(option) {
       case "route":
@@ -369,8 +377,6 @@ function refresh() {
 $(document).on("pagebeforeshow", "#page-rides", function(event) {
   var onSearch = function() {
     hideAllButtons();
-    clearAllRides();
-    clearAllHitchhikes();
     search();
     $("#collapsible-search").collapsible("collapse");
   };
@@ -388,6 +394,7 @@ $(document).on("pagebeforeshow", "#page-rides", function(event) {
   $("#button-offer-ride").click(upsertRide);
   $("#button-update-share").click(upsertRide);
   $("#button-share-ride").click(upsertRide);
+  $("#button-delete-ride").click(removeRide);
 
   $("#button-bardemir").click(centerMap);
   $("#button-refresh").click(refresh);

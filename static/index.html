@@ -71,23 +71,43 @@
           </div>
         </div>
         <div id="menu-map-right">
-          <button id="button-offer"
-             href="#"
-             class="ui-btn"></button><br/>
-          <button id="button-share"
-             href="#"
-             class="ui-btn"></button><br/>
-          <button id="button-ask"
-             href="#"
-             class="ui-btn"></button>
-          <button id="button-accessibility"
-                  href="#"
-                  class="ui-btn ui-corner-all ui-icon-eye ui-btn-icon-left ui-btn-icon-notext">
-          </button>
-          <button id="button-bardemir"
-             href="#"
-             class="ui-btn ui-corner-all ui-icon-home ui-btn-icon-left ui-btn-icon-notext">
-            Bardemir</button>
+          <div id="menu-edit-hitchhike" class="menu-hidden">
+            <button id="button-dismiss-edit-hitchhike"
+                    class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left ui-btn-icon-notext button-dismiss gray button-small">
+            </button>
+            <button id="button-edit-hitchhike" class="ui-btn ui-icon-check ui-btn-icon-notext button-hitchhike green"></button>
+            <button id="button-delete-hitchhike" class="ui-btn ui-icon-delete ui-btn-icon-notext button-hitchhike red"></button>
+          </div>
+          <div id="menu-create-hitchhike" class="menu-hidden">
+            <button id="button-dismiss-create-hitchhike"
+                    class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left ui-btn-icon-notext button-dismiss gray button-small">
+            </button>
+            <button id="button-ask-hitchhike" class="ui-btn ui-icon-plus ui-btn-icon-notext button-hitchhike blue"></button>
+          </div>
+          <div id="menu-edit-ride" class="menu-hidden">
+            <button id="button-dismiss-edit"
+                    class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left ui-btn-icon-notext button-dismiss gray button-small">
+            </button>
+            <button id="button-update-ride" class="ui-btn ui-icon-check ui-btn-icon-notext button-ride green"></button>
+            <button id="button-delete-ride" class="ui-btn ui-icon-delete ui-btn-icon-notext button-ride red"></button>
+          </div>
+          <div id="menu-create-ride" class="menu-hidden">
+            <button id="button-dismiss-create"
+                    class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left ui-btn-icon-notext button-dismiss gray button-small">
+            </button>
+            <button id="button-offer-ride" class="ui-btn button-ride ui-icon-plus ui-btn-icon-notext blue"></button>
+          </div>
+          <div id="menu-default">
+            <button id="button-accessibility"
+                    class="ui-btn ui-corner-all ui-icon-eye ui-btn-icon-left ui-btn-icon-notext blue button-small">
+            </button>
+            <button id="button-refresh"
+                    class="ui-btn ui-corner-all ui-icon-refresh ui-btn-icon-left ui-btn-icon-notext blue button-small">
+            </button>
+            <button id="button-bardemir"
+                    class="ui-btn ui-corner-all ui-icon-home ui-btn-icon-left ui-btn-icon-notext blue button-small">
+              Bardemir</button>
+          </div>
         </div>
         <div id="div-map"></div>
       </div>

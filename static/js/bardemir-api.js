@@ -45,6 +45,17 @@ BardemirApi.prototype.upsertRide = function (ride) {
   });
 }
 
+BardemirApi.prototype.removeRide = function (id) {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    console.log("remove ride...");
+    return gapiThen(client.rides.remove({
+      "auth": authToken,
+      "id": id,
+    }));
+  });
+}
+
 BardemirApi.prototype.upsertHitchhike = function (hitchhike) {
   var authToken = this.authToken;
   return this.client().then(function (client) {
