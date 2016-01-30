@@ -10,13 +10,14 @@
 }
 
 #listview-events li a {
-  font-size: 90% !important;
+  white-space:normal !important;
+  font-size: 85% !important;
   margin: auto !important;
   font-weight: unset !important;
 }
 
-#controlgroup-date {
-  margin: auto !important;
+#listview-events {
+  width: 16em;
 }
 
 .hidden {
@@ -91,6 +92,21 @@
 
 .button-small:after {
   opacity: 1.0;
+}
+
+#controlgroup-search {
+  margin: auto;
+}
+
+#controlgroup-rides {
+  margin: auto;
+}
+
+#input-search {
+  width: 8em;
+}
+#input-date {
+  width: 9.3em;
 }
 
 #menu-map-left .ui-collapsible-heading .ui-btn {
