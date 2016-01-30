@@ -9,21 +9,20 @@
   display: none;
 }
 
-#menu {
-  background-color: rgba(255, 255, 255, 0.6) !important;
+#listview-events li a {
+  font-size: 90% !important;
+  margin: auto !important;
+  font-weight: unset !important;
 }
 
-#menu li {
-  background-color: rgba(255, 255, 255, 0.6) !important;
+#controlgroup-date {
+  margin: auto !important;
 }
 
-#menu ul li.ui-li-divider{
-  border-top:none !important;
-}
-
-.menu-hidden {
+.hidden {
   display: none;
 }
+
 .green {
   background-color: #00a550 !important;
 }
@@ -154,3 +153,12 @@ body {
 #header-common {
   display: none;
 }
+
+#collapsible-search {
+  margin: 4px;
+}
+
+#collapsible-rides {
+  margin: 4px;
+}
+

@@ -1,44 +1,31 @@
-function optionForOwnedHitchhike() {
-  return {
-    draggable: true,
-    clickable: true,
-    icon: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4DA6FF|",
-  };
-}
-
-function optionForHitchhike() {
-  return {
-    draggable: false,
-    clickable: false,
-  }
-}
-
 function HitchhikingRenderer() {
   this.marker = new google.maps.Marker();
+  this.hitchhike = null;
   var self = this;
-  this.redrawForHitchhike = function(hitchhike, sessionUser) {
-    var options = null;
-    if (hitchhike.owner.id == sessionUser.id) {
-      options = optionForOwnedHitchhike();
-    } else {
-      options = optionForHitchhike();
-      options.icon = {
-        url: owner.photoUrl,
-      };
-      options.title = owner.name;
-    }
+  this.redrawForHitchhike = function(hitchhike) {
+    var options = {
+      draggable: false,
+      clickable: true,
+      opacity: 0.7,
+      icon: hitchhike.owner.photoUrl,
+      title: hitchhike.owner.name,
+    };
     self.marker.setOptions(options);
     self.marker.setPosition(hitchhike.position);
   }
 }
 
+HitchhikingRenderer.prototype.setHighlight= function(isHighlighted) {
+  if (isHighlighted) {
+    this.marker.setOptions({ opacity: 1 })
+  } else {
+    this.marker.setOptions({ opacity: 0.7 })
+  }
+}
+
 HitchhikingRenderer.prototype.setHitchhike = function(hitchhike) {
-  var self = this;
-  var redrawForHitchhike = this.redrawForHitchhike;
-  return backend().getProfile().then(function(sessionUser) {
-    redrawForHitchhike(hitchhike, sessionUser);
-    return self;
-  });
+  this.redrawForHitchhike(hitchhike);
+  this.hitchhike = hitchhike;
 }
 
 HitchhikingRenderer.prototype.show = function() {
@@ -55,6 +42,14 @@ HitchhikingRenderer.prototype.getPosition = function() {
     return position;
   }
   return null;
+}
+
+HitchhikingRenderer.prototype.clearListeners = function(evt) {
+  google.maps.event.clearInstanceListeners(this.marker);
+}
+
+HitchhikingRenderer.prototype.addListener = function(evt, f) {
+  this.marker.addListener(evt, f);
 }
 
 function HitchhikingRenderersPool() {

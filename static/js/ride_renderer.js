@@ -1,34 +1,3 @@
-var DEFAULT_MARKER_OPTION  = function() {
-  return;
-};
-
-function optionForRide(styleIdx) {
-  return {
-    markerOptions: {
-      visible: false,
-      clickable: true,
-      draggable: false
-    },
-    polylineOptions: {
-      clickable: true,
-      draggable: false,
-      opacity: 0.7,
-      strokeColor: color(styleIdx)
-    }
-  };
-}
-
-function optionForOwnedRide(styleIdx) {
-  return {
-    markerOptions: {
-      visible: true,
-      clickable: true,
-      draggable: false,
-      icon: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4DA6FF|",
-    },
-  };
-};
-
 function RideRenderer(styleIdx) {
   this.styleIdx = styleIdx;
   this.startMarker = null;
@@ -42,11 +11,13 @@ function RideRenderer(styleIdx) {
       clickable: true,
       draggable: false,
       opacity: 0.7,
-      zIndex: DEFAULT_ZINDEX
+      zIndex: DEFAULT_ZINDEX,
+      position: ride.directions.routes[0].legs[0].start_location,
+      title: ride.owner.name,
+      icon: {
+        url: ride.owner.photoUrl
+      }
     };
-    markerOptions.position = ride.directions.routes[0].legs[0].start_location;
-    markerOptions.title = ride.owner.name;
-    markerOptions.icon = { url: ride.owner.photoUrl };
     if (self.startMarker == null) {
       self.startMarker = new google.maps.Marker(markerOptions);
     }
@@ -77,7 +48,7 @@ RideRenderer.prototype.setHighlight= function(isHighlighted) {
   }
 }
 
-RideRenderer.prototype.clearListeners = function(evt) {
+RideRenderer.prototype.clearListeners = function() {
   var elems = [this.polyline, this.startMarker];
   for (i in elems) {
     var e = elems[i];

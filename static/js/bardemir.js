@@ -36,8 +36,10 @@ function initMap() {
     draggable: true,
     clickable: true,
     zIndex: TOP_ZINDEX,
+    label: 'A',
   });
 
+  currentHitchhike.id = 0;
   mapDiv = document.getElementById('div-map');
   map = new google.maps.Map(mapDiv, {
     zoom: 16,
@@ -55,10 +57,10 @@ function initMap() {
     streetViewControl: true,
     streetViewControlOptions: {
       position: google.maps.ControlPosition.RIGHT_BOTTOM
-    } }
-    );
+    }
+  });
 
-  Promise.all([listRides(), listHitchhikes()]).then(function(values) {
+  Promise.all([listRides(), listHitchhikes(), listEvents()]).then(function(values) {
     new google.maps.Marker({
       position: BARDEMIR_LAT_LONG,
       map: map,
@@ -126,7 +128,7 @@ function upsertRide() {
     currentRide.id = null;
     currentRide.setMap(null);
     showMainButtons();
-    return listRides();
+    return refresh();
   }, shit);
 }
 
@@ -135,15 +137,82 @@ function removeRide() {
     currentRide.id = null;
     currentRide.setMap(null);
     showMainButtons();
-    return listRides();
+    return refresh();
+  }, shit);
+}
+
+function removeHitchhike() {
+  return backend().removeHitchhike(currentHitchhike.id).then(function() {
+    currentHitchhike.id = null;
+    currentHitchhike.setMap(null);
+    showMainButtons();
+    return refresh();
   }, shit);
 }
 
 function upsertHitchhike() {
-  return backend().getProfile().then(function(owner) {
-    return backend().upsertHitchhike(
-        new Hitchhike(null, owner, currentHitchhike.getPosition())).then(listHitchhikes);
+  return backend().upsertHitchhike(
+      new Hitchhike(currentHitchhike.id, null, currentHitchhike.getPosition())
+      ).then(function () {
+    currentHitchhike.id = null;
+    currentHitchhike.setMap(null);
+    showMainButtons();
+    return refresh();
   }, shit);
+}
+
+var currentDate = null;
+
+function formatedDate(date) {
+  return date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+}
+
+function setCurrentDateAndUI(date) {
+  setCurrentDate(date);
+  $("#input-date").val(formatedDate);
+}
+function setCurrentDate(date) {
+  $("#span-selected-date").text(formatedDate(date));
+  currentDate = date;
+}
+
+var weekdayName = [
+  "Dom",
+  "Seg",
+  "Ter",
+  "Qua",
+  "Qui",
+  "Sex",
+  "Sab"
+  ];
+
+function listEvents() {
+  return backend().getEvents().then(function(events) {
+    console.log(events)
+      if (events.length == 0) {
+        return;
+      }
+
+    var col = $("#collapsible-rides");
+    var list_items = '';
+    $.each(events, function (i, e) {
+      date = new Date(Date.parse(e.time));
+      dateStr = formatedDate(date);
+      weekday = weekdayName[date.getDay()];
+      if (i == 0) {
+        $("#span-selected-date").text(weekday + ", " + dateStr);
+        $("#input-date").val(dateStr);
+      }
+      list_items += "<li><a href='#'>" + e.name + " (" + weekday + " - " + dateStr + ")</li>";
+    });
+    var list = $("#listview-events")
+    list.empty();
+    list.append(list_items);
+    list.listview().trigger("create");
+    col.collapsible().trigger("create");
+    $("#collapsible-set-rides").collapsibleset().trigger("create");
+    $("#collapsible-rides").show()
+  });
 }
 
 function listRides() {
@@ -185,24 +254,52 @@ function listRides() {
 
       renderer.show();
       renderers.push(renderer);
-
     }
     return renderers
   });
 }
 
 function listHitchhikes() {
-  return backend().listHitchhikes().then(function(hitches) {
-    var all = [];
+  return Promise.all([
+      backend().getProfile(),
+      backend().listHitchhikes()]).then(function(result) {
+    var sessionUser = result[0];
+    var hitches = result[1];
+    var renderers = [];
     for (i in hitches) {
-      all.push(hitchhikingRenderersPool.getRenderer(i)
-          .setHitchhike(hitches[i])
-          .then(function(renderer) {
-            renderer.show();
-            return renderer;
-          }));
+      var renderer = hitchhikingRenderersPool.getRenderer(i);
+      renderer.clearListeners();
+      renderer.setHitchhike(hitches[i]);
+      renderer.show();
+      renderers.push(renderer);
+      renderer.addListener("click", function(r, isOwner) {
+        return function() {
+          r.setHighlight(true);
+          clearRides();
+          clearAllHitchhikes();
+          if (isOwner) {
+            currentHitchhike.setPosition(r.hitchhike.position);
+            currentHitchhike.setMap(map);
+            currentHitchhike.id = r.hitchhike.id;
+            showEditHitchhikeButtons();
+          } else {
+            // TODO(ademirao): implement whta to do when clicking...
+          }
+        };
+      }(renderer, sessionUser.id == renderer.hitchhike.owner.id));
+      renderer.addListener("mouseover", function (r) {
+        return function() {
+          r.setHighlight(true);
+        };
+      }(renderer));
+      renderer.addListener("mouseout", function (r) {
+        return function() {
+          r.setHighlight(false);
+        };
+      }(renderer));
+
     }
-    return Promise.all(all);
+    return renderers;
   });
 }
 
@@ -268,6 +365,13 @@ function centerMap() {
 }
 
 $(document).on("pagebeforecreate", function(event) {
+  $("#div-datepicker").datepicker().hide();
+  $("#button-pick-date").click(function() {
+    $("#div-datepicker").datepicker().toggle();
+    $("#div-datepicker").datepicker().click(function() {
+      $(this).hide();
+    });
+  });
   var target = $(event.target);
   target.find("[data-id=header-common]").each(function(idx, v) {
     $(v).attr("data-role", "header");
@@ -305,12 +409,6 @@ $(document).on("pagebeforecreate", function(event) {
 });
 
 
-$(document).on("pagebeforecreate", "#page-rides", function(event) {
-  $("#main-rides").append($('<script src="https://maps.googleapis.com/' +
-        'maps/api/js?key=AIzaSyDNTbyli1Crny1z2fH8B3fhEev0v6jjfQU&' +
-        'signed_in=false&callback=initMap"async defer></script>'));
-})
-
 function logout() {
   $.removeCookie('facebook_access_token');
 }
@@ -319,9 +417,15 @@ function showEditRideButtons() {
   hideAllButtons();
   $("#menu-edit-ride").show(600, "swing")
 }
+
 function showCreateRideButtons() {
   hideAllButtons();
   $("#menu-create-ride").show(600, "swing")
+}
+
+function showEditHitchhikeButtons() {
+  hideAllButtons();
+  $("#menu-edit-hitchhike").show(600, "swing")
 }
 
 function showCreateHitchhikeButtons() {
@@ -356,11 +460,17 @@ function search() {
   return Promise.resolve(null);
 }
 
+$(document).on("pagebeforecreate", "#page-rides", function(event) {
+  $("#main-rides").append($('<script src="https://maps.googleapis.com/' +
+        'maps/api/js?key=AIzaSyDNTbyli1Crny1z2fH8B3fhEev0v6jjfQU&' +
+        'signed_in=false&callback=initMap"async defer></script>'));
+})
+
 $(document).on("pagebeforecreate", "#page-events", function(event) {
-  backend().listPosts().then(function(posts) {
+  backend().getEvents().then(function(events) {
     $("#events_dest").empty();
-    for (i in posts) {
-      post_div = $("<div class=post>"+ posts[i] + "</div>");
+    for (i in events) {
+      post_div = $("<div class=post>"+ events[i].name + "&nbsp;"  + events[i].time+ "</div>");
       $("#events_dest").append(post_div);
     }
   }, function (reason) {
@@ -390,11 +500,13 @@ $(document).on("pagebeforeshow", "#page-rides", function(event) {
     refresh().then(showMainButtons);
   });
 
-  $("#button-update-ride").click(upsertRide);
-  $("#button-offer-ride").click(upsertRide);
-  $("#button-update-share").click(upsertRide);
-  $("#button-share-ride").click(upsertRide);
   $("#button-delete-ride").click(removeRide);
+  $("#button-offer-ride").click(upsertRide);
+  $("#button-share-ride").click(upsertRide);
+  $("#button-update-ride").click(upsertRide);
+  $("#button-update-share").click(upsertRide);
+  $("#button-edit-hitchhike").click(upsertHitchhike);
+  $("#button-delete-hitchhike").click(removeHitchhike);
 
   $("#button-bardemir").click(centerMap);
   $("#button-refresh").click(refresh);
@@ -411,6 +523,20 @@ $(document).on("pagebeforeshow", "#page-logout", function(event) {
         '/facebook/login&scope=user_managed_groups,user_events');
   });
 });
+
+$(document).on("pagebeforeshow", "#page-admin", function(event) {
+  backend().getProfile().then(function(profile) {
+    $("#span-user-name").append(profile.name);
+    $("#div-admin-content").show();
+    $("#button-admin-token").click(function() {
+      backend().setAdminToken().then(function(result) {
+        $("#page-admin").empty().append("DONE");
+        window.location.replace("/");
+      });
+    });
+  });
+});
+
 
 $(document).on("pagecontainerbeforechange", function(event, data) {
   var to = data.toPage;

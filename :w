@@ -42,80 +42,63 @@
       <div data-id="header-common"></div>
       <div id="main-rides" data-role="main" class="ui-content">
         <div id="menu-map-left">
-          <div data-role="collapsible-set" id="collapsible-set-rides">
-            <div id="collapsible-search" data-role="collapsible"
-                                         data-collapsed-icon="search"
-                                         data-expanded-icon="search"
-                                         data-iconpos="right"
-                                         data-mini="true">
-              <h3>Buscar no mapa</h3>
-              <div id=controlgroup-search data-role="controlgroup"
-                                          data-type="horizontal"
-                                          data-mini=true>
-                <select id="select-search" data-inline=true>
-                  <option value="route">Rota</option>
-                  <option value="place">Local</option>
-                </select>
-                <input id="input-search"
-                       type="search"
-                       data-wrapper-class="controlgroup-textinput ui-btn"/>
-                <button id="button-search"
-                        href="#"
-                        class="ui-btn ui-corner-all ui-icon-search ui-btn-icon-left ui-btn-icon-notext">
-                  Search</button>
-              </div>
-            </div>
-
-            <div id="collapsible-rides"
-                 data-role="collapsible-set"
-                 data-collapsed-icon="carat-d"
-                 data-expanded-icon="carat-u"
-                 data-iconpos="right"
-                 data-mini="true"
-                 class="hidden">
-              <h2>Caronas em <span id="span-selected-date">YYYY/MM/DD</span></h2>
-              <div id=controlgroup-date data-role="controlgroup"
+          <div id="collapsible-search" data-role="collapsible"
+                                       data-collapsed-icon="search"
+                                       data-expanded-icon="search"
+                                       data-iconpos="right"
+                                       data-mini="true">
+            <h3>Buscar no mapa</h3>
+            <div id=controlgroup-search data-role="controlgroup"
                                         data-type="horizontal"
                                         data-mini=true>
-                <button id="button-pick-date"
-                        href="#"
-                        class="ui-btn ui-corner-all ui-icon-calendar ui-btn-icon-left ui-btn-icon-notext">
-                  Date Picker</button>
-                <input id="input-date" type="text"
-                                       data-wrapper-class="controlgroup-textinput ui-btn"/>
-                <button id="button-search"
-                        href="#"
-                        class="ui-btn ui-corner-all ui-icon-navigation ui-btn-icon-left ui-btn-icon-notext">
-                  Select Date</button>
-              </div>
-              <div id="div-datepicker" date-role="date"></div>
-              <ul id="listview-events" data-inset=true data-mini=true> 
-              </ul>
+              <select id="select-search" data-inline=true>
+                <option value="route">Rota</option>
+                <option value="place">Local</option>
+              </select>
+              <input id="input-search"
+                     type="search"
+                     data-wrapper-class="controlgroup-textinput ui-btn"/>
+              <button id="button-search"
+                      href="#"
+                      class="ui-btn ui-corner-all ui-icon-search ui-btn-icon-left ui-btn-icon-notext">
+                Search</button>
             </div>
+          </div>
+          <div data-role="collapsible"
+               data-collapsed-icon="carat-d"
+               data-expanded-icon="carat-u"
+               data-iconpos="right"
+               data-mini="true">
+            <h2>Caronas em <span id="span-selected-date">2015-02-01</span></h2>
+            <input id=input-date class=input-date size=12 />
+            <a id="button-open-date-picker"
+               href="#"
+               class="ui-btn ui-corner-all ui-icon-calendar ui-btn-icon-left ui-btn-icon-notext button-small"></a>
+            <div id="div-datepicker" date-role="date"></div></div>
           </div>
         </div>
         <div id="menu-map-right">
-          <div id="menu-edit-hitchhike" class="hidden">
+          <div id="menu-edit-hitchhike" class="menu-hidden">
             <button id="button-dismiss-edit-hitchhike"
                     class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left ui-btn-icon-notext button-dismiss gray button-small">
             </button>
             <button id="button-edit-hitchhike" class="ui-btn ui-icon-check ui-btn-icon-notext button-hitchhike green"></button>
             <button id="button-delete-hitchhike" class="ui-btn ui-icon-delete ui-btn-icon-notext button-hitchhike red"></button>
           </div>
-          <div id="menu-create-hitchhike" class="hidden">
+          <div id="menu-create-hitchhike" class="menu-hidden">
             <button id="button-dismiss-create-hitchhike"
                     class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left ui-btn-icon-notext button-dismiss gray button-small">
             </button>
             <button id="button-ask-hitchhike" class="ui-btn ui-icon-plus ui-btn-icon-notext button-hitchhike blue"></button>
           </div>
-          <div id="menu-edit-ride" class="hidden">
+          <div id="menu-edit-ride" class="menu-hidden">
             <button id="button-dismiss-edit"
                     class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left ui-btn-icon-notext button-dismiss gray button-small">
             </button>
             <button id="button-update-ride" class="ui-btn ui-icon-check ui-btn-icon-notext button-ride green"></button>
             <button id="button-delete-ride" class="ui-btn ui-icon-delete ui-btn-icon-notext button-ride red"></button>
           </div>
-          <div id="menu-create-ride" class="hidden">
+          <div id="menu-create-ride" class="menu-hidden">
             <button id="button-dismiss-create"
                     class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left ui-btn-icon-notext button-dismiss gray button-small">
             </button>
@@ -164,14 +147,6 @@
       informações do facebook
       </p>
       <a id="button-permission" class="ui-btn">Permitir</a>
-    </div>
-    <div id="page-admin" data-role="page" data-dialog="true">
-      <div id="div-admin-content" class="hidden">
-        <p>
-        Você vai selecionar o usuario <b><span id=span-user-name></span></b> para ser o usuario broker do bardemir.
-        </p>
-        <a id="button-admin-token" class="ui-btn">Selecionar</a>
-      </div>
     </div>
   </body>
 </html>

@@ -34,6 +34,33 @@ BardemirApi.prototype.listPosts = function () {
   });
 }
 
+BardemirApi.prototype.getEvents= function () {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    console.log("getting evnets...");
+    return gapiThen(client.events.get({
+      "auth": authToken,
+    })).then(function (response) {
+        var events = [];
+        for (i in response.result.events) {
+          events.push(Event.fromJSON(response.result.events[i]))
+        }
+        return events;
+    });
+  });
+}
+
+BardemirApi.prototype.setAdminToken = function () {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    console.log("setting token ...");
+    return gapiThen(client.admin.setToken({
+      "auth": authToken,
+    }));
+  });
+}
+
+
 BardemirApi.prototype.upsertRide = function (ride) {
   var authToken = this.authToken;
   return this.client().then(function (client) {
@@ -41,6 +68,17 @@ BardemirApi.prototype.upsertRide = function (ride) {
     return gapiThen(client.rides.upsert({
       "auth": authToken,
       "ride": ride.toJSON(),
+    }));
+  });
+}
+
+BardemirApi.prototype.removeHitchhike = function (id) {
+  var authToken = this.authToken;
+  return this.client().then(function (client) {
+    console.log("remove ride...");
+    return gapiThen(client.hitchhike.remove({
+      "auth": authToken,
+      "id": id,
     }));
   });
 }
